@@ -1,0 +1,164 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+body {
+	overflow: hidden
+}
+#info {
+  position: absolute;
+  top: 0px;
+  width: 100%;
+  padding: 10px;
+  text-align: center;
+  color: #ffff00
+}
+</style>
+</head>
+<body>
+	<div id="info">hw1
+	  <br>Press space to stop</div>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r70/three.min.js"></script>
+	<script src="https://dl.dropboxusercontent.com/u/3587259/Code/Threejs/OrbitControls.js">
+
+	</script>
+	<script src="https://jyunming-chen.github.io/tutsplus/js/KeyboardState.js"></script>
+<script>
+var camera, scene, renderer, controls;
+var keyboard = new KeyboardState();
+<<<<<<< HEAD
+var force, pos, vel, angle;
+//var power;
+var mass=1;
+var clock = new THREE.Clock();
+=======
+var force, pos, vel, angle = 0;
+var clock = new THREE.Clock();
+var mass = 1;
+>>>>>>> master
+
+init();
+animate();
+
+function init() {
+  scene = new THREE.Scene();
+
+  camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 1, 1000);
+  camera.position.z = 20;
+  camera.position.y = 20;
+  scene.add(camera);
+
+  var gridXZ = new THREE.GridHelper(10, 1);
+  gridXZ.setColors(new THREE.Color(0xff0000), new THREE.Color(0xffffff));
+  scene.add(gridXZ);
+
+  renderer = new THREE.WebGLRenderer();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  renderer.setClearColor(0x888888);
+
+  controls = new THREE.OrbitControls(camera, renderer.domElement);
+
+  document.body.appendChild(renderer.domElement);
+  ////////////////////////////////////////////////////////////////
+  var geometry = new THREE.Geometry();
+  // add vertices
+  geometry.vertices.push(new THREE.Vector3(0, 0, 1));
+  geometry.vertices.push(new THREE.Vector3(3, 0, 0));
+  geometry.vertices.push(new THREE.Vector3(0, 1, 0));
+  geometry.vertices.push(new THREE.Vector3(0, 0, -1));
+
+  // add faces
+  geometry.faces.push(new THREE.Face3(0, 1, 2));
+  geometry.faces.push(new THREE.Face3(0, 2, 3));
+  geometry.faces.push(new THREE.Face3(0, 3, 1));
+  geometry.faces.push(new THREE.Face3(3, 2, 1));
+
+  // build necessary information
+  geometry.computeBoundingSphere();
+  geometry.computeFaceNormals();
+  geometry.computeVertexNormals();
+
+  var mesh = new THREE.Mesh(geometry, new THREE.MeshNormalMaterial({
+    side: THREE.DoubleSide
+  }));
+
+  pos = new THREE.Vector3();
+  vel = new THREE.Vector3();
+  force = new THREE.Vector3()
+
+  //scene.add (mesh);
+  car = new THREE.Mesh(geometry, new THREE.MeshNormalMaterial);
+  scene.add(car);
+}
+
+<<<<<<< HEAD
+
+function computeForce() {
+	//thrust
+  force = new THREE.Vector3(1,0,0).applyAxisAngle (new THREE.Vector3(0,1,0), angle-0.31).multiplyScalar (26);
+
+  // drag
+  var alpha = 2.050;
+  force.add ( vel.clone().multiplyScalar (-alpha) );
+}
+=======
+function computeForce() {
+
+  if (keyboard.down("up")) {
+    force = new THREE.Vector3(1, 0, 0).applyAxisAngle(new THREE.Vector3(1, 0, 0), angle).multiplyScalar(13);
+  }
+  if (keyboard.down("down")) {
+    force = new THREE.Vector3(0, 0, 0).applyAxisAngle(new THREE.Vector3(1, 0 ,0),- angle).multiplyScalar(13);
+  }
+  if (keyboard.down("right")) {
+
+    force = new THREE.Vector3(1, 0, 0).applyAxisAngle(new THREE.Vector3(0, 1, 0), angle - 0.3).multiplyScalar(5);
+  }
+  if (keyboard.down("left")) {
+    force = new THREE.Vector3(1, 0, 0).applyAxisAngle(new THREE.Vector3(0, 1, 0), angle + 0.3).multiplyScalar(5);
+  }
+
+  var alpha = 3.050;
+  if (vel > 0)
+    force.add(vel.clone().multiplyScalar(-alpha));
+}
+
+>>>>>>> master
+function animate() {
+  keyboard.update();
+
+  computeForce();
+
+  var dt = clock.getDelta(); // delta-time
+  // vel = vel + force/mass * dt
+  vel.add(force.clone().multiplyScalar(dt / mass));
+
+  // pos = pos + vel * dt
+  pos.add(vel.clone().multiplyScalar(dt));
+
+<<<<<<< HEAD
+
+  controls.update();
+=======
+  if (vel.length() > 0.0001) {
+    angle = Math.atan2(-vel.z, vel.x);
+  }
+>>>>>>> master
+
+  car.position.copy(pos);
+  car.rotation.y = angle;
+
+  controls.update();
+  requestAnimationFrame(animate);
+  render();
+}
+
+function render() {
+  renderer.render(scene, camera);
+}
+window.focus();
+</script>
+</body>
+
+</html>
