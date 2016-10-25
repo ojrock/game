@@ -27,16 +27,9 @@ body {
 <script>
 var camera, scene, renderer, controls;
 var keyboard = new KeyboardState();
-<<<<<<< HEAD
-var force, pos, vel, angle;
-//var power;
-var mass=1;
-var clock = new THREE.Clock();
-=======
 var force, pos, vel, angle = 0;
 var clock = new THREE.Clock();
 var mass = 1;
->>>>>>> master
 
 init();
 animate();
@@ -92,31 +85,20 @@ function init() {
   scene.add(car);
 }
 
-<<<<<<< HEAD
-
-function computeForce() {
-	//thrust
-  force = new THREE.Vector3(1,0,0).applyAxisAngle (new THREE.Vector3(0,1,0), angle-0.31).multiplyScalar (26);
-
-  // drag
-  var alpha = 2.050;
-  force.add ( vel.clone().multiplyScalar (-alpha) );
-}
-=======
 function computeForce() {
 
   if (keyboard.down("up")) {
     force = new THREE.Vector3(1, 0, 0).applyAxisAngle(new THREE.Vector3(1, 0, 0), angle).multiplyScalar(13);
   }
   if (keyboard.down("down")) {
-    force = new THREE.Vector3(0, 0, 0).applyAxisAngle(new THREE.Vector3(1, 0 ,0),- angle).multiplyScalar(13);
+    force = new THREE.Vector3(0, 0, 0).applyAxisAngle(new THREE.Vector3(1, 0 ,0), angle).multiplyScalar(-13);
   }
   if (keyboard.down("right")) {
 
-    force = new THREE.Vector3(1, 0, 0).applyAxisAngle(new THREE.Vector3(0, 1, 0), angle - 0.3).multiplyScalar(5);
+    force = new THREE.Vector3(1, 0, 0).applyAxisAngle(new THREE.Vector3(0, 1, 0), angle - 0.3).multiplyScalar(1);
   }
   if (keyboard.down("left")) {
-    force = new THREE.Vector3(1, 0, 0).applyAxisAngle(new THREE.Vector3(0, 1, 0), angle + 0.3).multiplyScalar(5);
+    force = new THREE.Vector3(1, 0, 0).applyAxisAngle(new THREE.Vector3(0, 1, 0), angle + 0.3).multiplyScalar(1);
   }
 
   var alpha = 3.050;
@@ -124,7 +106,6 @@ function computeForce() {
     force.add(vel.clone().multiplyScalar(-alpha));
 }
 
->>>>>>> master
 function animate() {
   keyboard.update();
 
@@ -137,14 +118,9 @@ function animate() {
   // pos = pos + vel * dt
   pos.add(vel.clone().multiplyScalar(dt));
 
-<<<<<<< HEAD
-
-  controls.update();
-=======
   if (vel.length() > 0.0001) {
     angle = Math.atan2(-vel.z, vel.x);
   }
->>>>>>> master
 
   car.position.copy(pos);
   car.rotation.y = angle;
