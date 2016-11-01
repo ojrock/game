@@ -43,9 +43,11 @@ function init() {
   renderer = new THREE.WebGLRenderer({
     antialias: true
   });
-/////
+/////////////////////////////////////
+
 	soundtrack = document.getElementById('soundtrack');
-////
+
+/////////////////////////////////
   pos = new THREE.Vector3(0, 40, 0);
   vel = new THREE.Vector3(0, 0, 0);
 
@@ -84,7 +86,7 @@ function init() {
   ball.position.y = 30;
 
   var ground = new THREE.Mesh(new THREE.PlaneGeometry(500, 50), new THREE.MeshBasicMaterial({
-    color: 0xff0000
+    color: 0x915228
   }));
   scene.add(ground);
   ground.position.y = -25;
