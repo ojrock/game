@@ -17,7 +17,7 @@ body {
 </head>
 <body>
 	<audio id="soundtrack" autoplay loop style="display:none">
-<source src="8-bit Detective.wav" type='audio/wav'>
+<source src="https://ojrock.github.io/game/HW/hw-02/8-bit.wav" type='audio/wav'>
 </audio>
 	<div id="info">Hw02 2D
 	</div>
@@ -48,17 +48,7 @@ function init() {
 ////
   pos = new THREE.Vector3(0, 40, 0);
   vel = new THREE.Vector3(0, 0, 0);
-  //force = new THREE.Vector3(0, -90, 0);
 
-
-  /*
-    // STATS
-  	stats = new Stats();
-  	stats.domElement.style.position = 'absolute';
-  	stats.domElement.style.top = '0px';
-  	stats.domElement.style.zIndex = 100;
-  	document.body.appendChild( stats.domElement );
-  */
   renderer.setSize(window.innerWidth, window.innerHeight);
   renderer.setClearColor(0x888888);
   document.body.appendChild(renderer.domElement);
@@ -83,12 +73,6 @@ function init() {
     scene.add(background);
   }
 
-  // what's in the scene? [depth]
-  // bordere (blue lines) [0]
-  // satellite (white circle) [1]
-  // mousePoint (red circle) [2]
-  // background (dark yellow quad) [3]
-  //
   // all on XY plane: rely on polygonOffset to sort things out
   // line object remains at frontmost
 
@@ -122,11 +106,7 @@ function onDocumentMouseDown(event) {
   mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
   mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
 
-  //console.log(mouse.x + ', ' + mouse.y);
 
-  /*  if (event.button === 2) { // left button (0), right (2)
-      vel.y += 40;
-    }*/
 }
 
 function animate() {
@@ -145,13 +125,10 @@ function animate() {
     vel.y += 40;
   }
 
-  //console.log(camera.position.x);
 if(camera.position.x>-1 && camera.position.x<450);{
   camera.position.x = pos.x;
 }
 
-
-//console.log(camera.position.x);
   // force: add gravity first
 
   if (pos.y <= ballR) { // if contact, add contact force
@@ -172,16 +149,10 @@ if(camera.position.x>-1 && camera.position.x<450);{
 
   // collision
   // if (x-p).n < 0 then hit
-  /*
-  if (pos.clone().sub(planeP).dot(planeN) < 0) {
-  	pos.y = 30;
-    vel.set (0,0,0);
-    }
-    */
   // bounce back
   if (pos.y <= ballR) {
     //pos.y = 0;
-    vel.y *= -.53;
+    vel.y *= -.87;
   }
 
   requestAnimationFrame(animate);
