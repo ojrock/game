@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html>
 <head>
@@ -17,6 +16,9 @@ body {
 </style>
 </head>
 <body>
+	<audio id="soundtrack" autoplay loop style="display:none">
+<source src="8-bit Detective.wav" type='audio/wav'>
+</audio>
 	<div id="info">Hw02 2D
 	</div>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r70/three.min.js"></script>
@@ -41,8 +43,9 @@ function init() {
   renderer = new THREE.WebGLRenderer({
     antialias: true
   });
-
-
+/////
+	soundtrack = document.getElementById('soundtrack');
+////
   pos = new THREE.Vector3(0, 40, 0);
   vel = new THREE.Vector3(0, 0, 0);
   //force = new THREE.Vector3(0, -90, 0);
