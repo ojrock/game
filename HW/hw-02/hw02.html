@@ -115,13 +115,13 @@ function animate() {
   var dt = clock.getDelta();
   force = new THREE.Vector3(0, -90, 0);
   keyboard.update();
-  if (keyboard.down('right')) {
+  if (keyboard.press ('right')) {
     //camera.position.x += 10;
-    force.add(new THREE.Vector3(50, 0, 0));
+    vel.add(new THREE.Vector3(5, 0, 0));
   }
-  if (keyboard.down('left')) {
+  if (keyboard.press('left')) {
     //camera.position.x -= 10;
-    force.add(new THREE.Vector3(-50, 0, 0));
+    vel.add(new THREE.Vector3(-5, 0, 0));
   }
   if (keyboard.down("space") || keyboard.down("up")) {
     vel.y += 40;
@@ -153,7 +153,7 @@ if(camera.position.x>-1 && camera.position.x<450);{
   // if (x-p).n < 0 then hit
   // bounce back
   if (pos.y <= ballR) {
-    //pos.y = 0;
+    pos.y = 0;
     vel.y *= -.87;
   }
 

@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+body {
+	overflow: hidden
+}
+#info {
+  position: absolute;
+  top: 0px;
+  width: 100%;
+  padding: 10px;
+  text-align: center;
+  color: #ffff00
+}
+</style>
+</head>
+<body>
+	<audio id="soundtrack" autoplay loop style="display:none">
+<source src="https://ojrock.github.io/game/HW/hw-02/8-bit.wav" type='audio/wav'>
+</audio>
+	<div id="info">Hw02 2D
+	</div>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r70/three.min.js"></script>
+	<script src="https://jyunming-chen.github.io/tutsplus/js/KeyboardState.js"></script>
+<script>
+var camera, scene, renderer;
+var satellite, angle = 0;
+var mousePoint;
+var mouse = new THREE.Vector2();
+var pos, vel, force;
+var clock = new THREE.Clock();
+//var ball;
+
+var keyboard = new KeyboardState();
+var stArray = [];
+var baseS = 0;
+var ballR = 5;
+var counter = 0;
+
+init();
+animate();
+
+function setUpStArray() {
+  for (var i = 0; i < 3; i++) {
+    var row = [];
+    for (var j = 0; j < 5; j++)
+      row.push(new THREE.Vector2(j * 0.25, 1 - 0.5 * i));
+    stArray.push(row);
+  }
+}
+
+function height(x) {
+  if (x > 20 && x < 100)
+    return 25
+  else
+    return 0
+}
+
+function init() {
+
+  renderer = new THREE.WebGLRenderer({
+    antialias: true
+  });
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  renderer.setClearColor(0x888888);
+  document.body.appendChild(renderer.domElement);
+
+  /////
+  soundtrack = document.getElementById('soundtrack');
+  ////
+
+  pos = new THREE.Vector3(0, 40, 0);
+  vel = new THREE.Vector3(0, 0, 0);
+
+  scene = new THREE.Scene();
+  camera = new THREE.OrthographicCamera(-50, 50, 80, -20, -10, 100);
+  camera.position.z = 10;
+  camera.position.x = 0;
+  scene.add(camera);
+  ///////////////////////////////////////////
+
+  THREE.ImageUtils.crossOrigin = '';
+
+  texture = THREE.ImageUtils.loadTexture('https://i.imgur.com/nMlJ4uv.jpg');
+  texture.wrapS = THREE.RepeatWrapping;
+  var texMat = new THREE.MeshBasicMaterial({
+    map: texture
+  });
+  for (var i = 0; i < 5; i++) {
+    var background = new THREE.Mesh(new THREE.PlaneGeometry(100, 100), texMat);
+    background.position.y = 30;
+    background.position.x = i * 100;
+    scene.add(background);
+  }
+  ////////////////////////////////////////////////////////////////////////////////////////////
+
+
+  setUpStArray();
+  THREE.ImageUtils.crossOrigin = '';
+  textureball = THREE.ImageUtils.loadTexture('https://i.imgur.com/skGgwyl.png');
+  textureball.wrapS = THREE.RepeatWrapping;
+
+  // setting up texMat
+  var texMatball = new THREE.MeshBasicMaterial({
+    map: textureball,
+    transparent: true, // cutout texture: set transparent: true
+    side: THREE.DoubleSide
+  });
+  var geometry = new THREE.Geometry();
+  geometry.vertices.push(
+    new THREE.Vector3(-5, -5, 0),
+    new THREE.Vector3(5, -5, 0),
+    new THREE.Vector3(5, 5, 0),
+    new THREE.Vector3(-5, 5, 0)
+  );
+  var face;
+  face = new THREE.Face3(0, 1, 2);
+  geometry.faces.push(face);
+  face = new THREE.Face3(0, 2, 3);
+  geometry.faces.push(face);
+
+  geometry.faceVertexUvs[0].push([stArray[1][0], stArray[1][1], stArray[0][1]]);
+  geometry.faceVertexUvs[0].push([stArray[1][0], stArray[0][1], stArray[0][0]]);
+
+  geometry.computeBoundingSphere();
+  geometry.computeFaceNormals();
+  geometry.computeVertexNormals();
+
+  ball = new THREE.Mesh(geometry, texMatball);
+  scene.add(ball);
+  ball.position.y = 30;
+
+
+  //////////////////////////////////////////////////////////////////////////
+
+
+  var ground = new THREE.Mesh(new THREE.PlaneGeometry(500, 50), new THREE.MeshBasicMaterial({
+    color: 0x915228
+  }));
+  var ground2 = new THREE.Mesh(new THREE.PlaneGeometry(80, 25), new THREE.MeshBasicMaterial({
+    color: 0x915228
+  }));
+  //
+  scene.add(ground2);
+  ground2.position.x = 60;
+  ground2.position.y = 12.5;
+  scene.add(ground);
+  ground.position.y = -25;
+  ground.position.x = 200;
+
+  window.addEventListener('resize', onWindowResize, false);
+  // window.addEventListener('mousedown', onDocumentMouseDown, false);
+}
+
+function onWindowResize() {
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+}
+
+
+function spriteAnimate() {
+  var geometry = ball.geometry;
+  var st0 = stArray[1][baseS];
+  var st1 = stArray[1][baseS + 1];
+  var st2 = stArray[0][baseS + 1];
+  var st3 = stArray[0][baseS];
+
+  geometry.faceVertexUvs[0] = [];
+  geometry.faceVertexUvs[0].push([st0, st1, st2]);
+  geometry.faceVertexUvs[0].push([st0, st2, st3]);
+  geometry.uvsNeedUpdate = true;
+
+  baseS = (baseS + 1) % 4;
+}
+
+function animate() {
+
+  var dt = clock.getDelta();
+  force = new THREE.Vector3(0, -90, 0);
+  keyboard.update();
+  if (keyboard.pressed('right')) {
+    //camera.position.x += 10;
+    vel.add(new THREE.Vector3(15, 0, 0));
+  }
+  if (keyboard.pressed('left')) {
+    //camera.position.x -= 10;
+    vel.add(new THREE.Vector3(-15, 0, 0));
+  }
+  if (keyboard.down("space") || keyboard.down("up")) {
+    vel.y += 40;
+  }
+  if (camera.position.x > -1 && camera.position.x < 451); {
+    camera.position.x = pos.x;
+  }
+
+  // force: add gravity first
+
+  if (pos.y <= ballR + height(pos.x)) { // if contact, add contact force
+    force.add(new THREE.Vector3(0, 90, 0));
+  }
+  if (pos.x < -47) {
+    force.add(new THREE.Vector3(500, 0, 0));
+  }
+  if (pos.x > 447) {
+    force.add(new THREE.Vector3(-500, 0, 0));
+  }
+  // then do Euler's
+  vel.add(force.clone().multiplyScalar(dt));
+  pos.add(vel.clone().multiplyScalar(dt));
+  ball.position.copy(pos);
+
+
+  if (pos.y <= ballR + height(pos.x)) {
+    pos.y = ballR + height(pos.x);
+    vel.y *= -.45;
+  }
+  if (pos.x >= 20 - ballR && pos.x <= 100 + ballR && pos.y < 25) {
+    if (pos.x <= 20 - ballR) {
+      pos.x = 20 - ballR;
+      force.add(new THREE.Vector3(-50, 0, 0));
+    }
+    if (pos.x >= 100 + ballR) {
+      force.add(new THREE.Vector3(50, 0, 0));
+      pos.x = 100 + ballR;
+    }
+    vel.x *= -.35;
+  }
+  counter++;
+  if (counter % 6 === 0) {
+    spriteAnimate();
+  }
+  requestAnimationFrame(animate);
+  render();
+}
+
+function render() {
+  renderer.render(scene, camera);
+}
+
+window.focus();
+</script>
+</body>
+
+</html>
