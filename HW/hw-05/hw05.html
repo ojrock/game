@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+#info {
+  position: absolute;
+  top: 3%;
+  width: 100%;
+  padding: 10px;
+  text-align: center;
+  color: #ffff00
+}
+#gui {
+    position: absolute;
+    top: 40px;
+    left: 20px;
+    height: 350px;
+}
+</style>
+</head>
+<body>
+<div id="info">
+Homework 05 <br>
+WORLD ORDER robot
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r70/three.min.js"></script>
+<script src="https://dl.dropboxusercontent.com/u/3587259/Code/Threejs/OrbitControls.js">
+
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/dat-gui/0.5.1/dat.gui.min.js"></script>
+<script>
+var camera, scene, renderer, light, controls;
+var body, upperArmL, upperArmR, foreArmL, foreArmR;
+var legL, legR, forlegL, forlegL;
+var angle = 0;
+var gcontrols;
+var speed=0;
+var clock = new THREE.Clock();
+var R = 100;
+
+var keys = [
+[0, 	 [0.019, -1.317, 0.019, -1.317, 0, 0, 0, 0]],
+[0.3,  [-0.631, -1.317, 0.619, -1.317, 0.12, -0.87, 0.5, 0.97]],
+[0.5,	 [0.019, -1.317, 0.019, -1.317, 0, 0, 0, 0]],
+[0.75, [0.619, -1.317, -0.63, -1.317, -0.87, 0.12, 0.97, 0.5]],
+[1, 	 [0.019, -1.317, 0.019, -1.317, 0, 0, 0, 0]],
+];
+var T = 2;
+var clock = new THREE.Clock();
+var ts = clock.getElapsedTime();
+var intKey=[];
+
+init();
+animate();
+
+function oneLink() {
+
+  var arm = new THREE.Object3D();
+  var mesh = new THREE.Mesh(new THREE.BoxGeometry(20, 5, 5),
+    new THREE.MeshNormalMaterial());
+  mesh.position.set(10, 2.5, 0);
+  arm.add(mesh);
+
+  return arm;
+}
+
+function legoneLink() {
+
+  var leg = new THREE.Object3D();
+  var mesh = new THREE.Mesh(new THREE.BoxGeometry(30, 8, 8),
+    new THREE.MeshNormalMaterial());
+  mesh.position.set(10, 2.5, 0);
+  leg.add(mesh);
+
+  return leg;
+}
+
+function flegoneLink() {
+
+  var fleg = new THREE.Object3D();
+  var mesh = new THREE.Mesh(new THREE.BoxGeometry(30, 6, 6),
+    new THREE.MeshNormalMaterial());
+  mesh.position.set(10, 2.5, 0);
+  fleg.add(mesh);
+
+  return fleg;
+}
+
+function init() {
+  scene = new THREE.Scene();
+
+  camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 1, 10000);
+  camera.position.z = 200;
+  camera.position.y = 200;
+  scene.add(camera);
+
+  light = new THREE.PointLight(0xffffff);
+  light.position.set(100, 300, 200);
+  scene.add(light);
+
+  var gridXZ = new THREE.GridHelper(300, 10);
+  gridXZ.setColors(new THREE.Color(0xff1111), new THREE.Color(0xffffff));
+  scene.add(gridXZ);
+
+	window.addEventListener('resize', onWindowResize, false);
+
+  renderer = new THREE.WebGLRenderer();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  renderer.setClearColor(0x888888);
+
+  controls = new THREE.OrbitControls(camera, renderer.domElement);
+
+  document.body.appendChild(renderer.domElement);
+	//////////////////////////////////////////
+	gcontrols = {
+      armyL:0.01,
+      armyR:0.01,
+      farmzL:0.01,
+      farmzR:0.05,
+      legxL:0.1,
+      legxR:0.1,
+      flegL:0.1,
+      flegR:0.1,
+
+    };
+
+    var gui = new dat.GUI();
+    gui.domElement.id = 'gui';
+    gui.add(gcontrols, 'armyL', -1.0, 1.0);
+    gui.add(gcontrols, 'farmzL', -2.0, 0.1);
+
+    gui.add(gcontrols, 'armyR', -1.0, 1.0);
+    gui.add(gcontrols, 'farmzR', -2.0,0.01);
+
+    gui.add(gcontrols, 'legxL', -1.0, 1.0);
+    gui.add(gcontrols, 'legxR', -1.0, 1.0);
+
+    gui.add(gcontrols, 'flegL', -3.0, 3.0);
+    gui.add(gcontrols, 'flegR', -3.0, 3.0);
+
+	//////////////////////////////////////////////////////////
+  body = new THREE.Object3D();  // torso + head
+  var torso = new THREE.Mesh (new THREE.BoxGeometry (30,40,20), new THREE.MeshNormalMaterial());
+  var head = new THREE.Mesh (new THREE.CylinderGeometry(10,10,10,32), new THREE.MeshNormalMaterial());
+  scene.add (body);
+  body.add (torso);
+  torso.position.set (0,20,0);
+	body.add (head);
+  head.position.set (0,45,0);
+
+  var arm = oneLink();
+	// left arm
+	upperArmL = arm.clone();
+  foreArmL = arm.clone();
+  body.add (upperArmL);
+  upperArmL.add(foreArmL);
+
+  upperArmL.position.set (15, 35, 0);
+  upperArmL.rotation.z = -Math.PI/2
+ 	upperArmL.rotation.order = 'ZXY';
+  foreArmL.position.set(20, 0, 0);
+
+	// right arm
+  upperArmR = arm.clone();
+  foreArmR = arm.clone();
+  body.add (upperArmR);
+  upperArmR.add(foreArmR);
+
+  upperArmR.position.set (-20, 35, 0);
+  upperArmR.rotation.z = -Math.PI/2
+ 	upperArmR.rotation.order = 'ZXY';
+  foreArmR.position.set(20, 0, 0);
+
+  var leg = legoneLink();
+  var legf = flegoneLink();
+  //left leg
+  legL = leg.clone();	forlegL = legf.clone();
+  body.add(legL);
+  legL.add(forlegL);
+  legL.position.set(5,0,0);
+  forlegL.position.set(27,0,0);
+  legL.rotation.z=-Math.PI/2;
+
+  // right
+  legR = leg.clone();	forlegR = legf.clone();
+  body.add(legR);
+  legR.add(forlegR);
+  legR.position.set(-10,0,0);
+  forlegR.position.set(27,0,0);
+  legR.rotation.z=-Math.PI/2;
+
+
+  body.position.y= 50;
+}
+
+
+
+function animate() {
+	this.sign = (this.sign === undefined)? 1 : this.sign;
+	 angle += 0.01;
+   body.position.set(R*Math.cos(angle),55 , -R*Math.sin(angle));
+   body.rotation.y=Math.PI+angle;
+ /*
+ 	body.rotation.y = angle/4;
+  upperArmL.rotation.y = angle;
+  foreArmL.rotation.y = - Math.PI/3;
+  upperArmR.rotation.y = -angle;
+  foreArmR.rotation.y =  -Math.PI/3;
+
+  legL.rotation.x = -angle/2;
+  legR.rotation.x = angle/2;*/
+
+  requestAnimationFrame(animate);
+  update();
+  render();
+ renderer.render(scene, camera);
+}
+
+function keyframe (t) {
+	var s = ((t - ts)%T)/T;
+  console.log (s);
+
+  for (var i = 0; i < keys.length; i++) {
+  	if (keys[i][0] > s) break;
+  }
+
+  // take i-1
+  var ii = i-1;
+  var a = (s - keys[ii][0]) / (keys[ii+1][0] - keys[ii][0]);
+  intKey = []
+  for (var j = 0; j < 8; j++) {
+  	intKey.push (keys[ii][1][j] * (1-a) + keys[ii+1][1][j]*a);
+  }
+  console.log (intKey);
+
+}
+
+function render() {
+/*	upperArmL.rotation.y=gcontrols.armyL;
+	foreArmL.rotation.y =gcontrols.farmzL;
+  upperArmR.rotation.y=gcontrols.armyR;
+	foreArmR.rotation.y =gcontrols.farmzR;
+  legL.rotation.x=gcontrols.legxL;
+  legR.rotation.x=gcontrols.legxR;
+  forlegL.rotation.y=gcontrols.flegL;
+  forlegR.rotation.y=gcontrols.flegR;
+	*/
+  upperArmL.rotation.y=intKey[0];
+  foreArmL.rotation.y =intKey[1];
+  upperArmR.rotation.y=intKey[2];
+	foreArmR.rotation.y =intKey[3];
+  legL.rotation.x=intKey[4];
+  legR.rotation.x=intKey[5];
+  forlegL.rotation.y=intKey[6];
+  forlegR.rotation.y=intKey[7];
+
+	renderer.render(scene, camera);
+}
+
+function update() {
+  controls.update();
+  keyframe(clock.getElapsedTime());
+}
+
+function onWindowResize() {
+  var width = window.innerWidth,
+    height = window.innerHeight;
+  camera.aspect = width / height;
+  camera.updateProjectionMatrix();
+  renderer.setSize(width, height);
+}
+</script>
+</body>
+
+</html>
